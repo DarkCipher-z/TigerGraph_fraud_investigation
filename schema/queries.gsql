@@ -1,0 +1,122 @@
+// ========================================================
+// TigerGraph GSQL Queries for Fraud Investigation
+// ========================================================
+
+USE GRAPH FraudGraph
+
+// 1. Query: card_history
+// Returns recent transactions, associated devices, IPs, and merchants for a given card
+CREATE OR REPLACE QUERY card_history(VERTEX<Card> target_card, INT limit_cnt = 50) FOR GRAPH FraudGraph {
+    ListAccum<EDGE> @@edges;
+    SetAccum<VERTEX> @@nodes;
+    
+    Start = { target_card };
+    @@nodes += target_card;
+    
+    // Hop 1: Transactions
+    TxSet = SELECT t FROM Start:c -(TRANSACTED_WITH:e)- Transaction:t
+            ACCUM @@edges += e, @@nodes += t
+            ORDER BY t.timestamp DESC
+            LIMIT limit_cnt;
+            
+    // Hop 2: Devices, IPs, Merchants
+    Devices = SELECT d FROM TxSet:t -(USES_DEVICE:e)- Device:d
+              ACCUM @@edges += e, @@nodes += d;
+              
+    IPs = SELECT ip FROM TxSet:t -(ORIGINATED_FROM:e)- IPAddress:ip
+          ACCUM @@edges += e, @@nodes += ip;
+          
+    Merchants = SELECT m FROM TxSet:t -(PAID_TO:e)- Merchant:m
+                ACCUM @@edges += e, @@nodes += m;
+                
+    PRINT @@nodes, @@edges, TxSet;
+}
+
+// 2. Query: entity_links
+// Retrieves all 1-hop and 2-hop connected entities (Accounts, Devices, IPs) for a card
+CREATE OR REPLACE QUERY entity_links(VERTEX<Card> target_card) FOR GRAPH FraudGraph {
+    SetAccum<VERTEX> @@linked_entities;
+    ListAccum<EDGE> @@linked_edges;
+    
+    Start = { target_card };
+    @@linked_entities += target_card;
+    
+    // Linked Accounts
+    Accs = SELECT a FROM Start:c -(HAS_CARD:e)- Account:a
+           ACCUM @@linked_edges += e, @@linked_entities += a;
+           
+    // Directly shared devices
+    Devs = SELECT d FROM Start:c -(SHARES_DEVICE:e)- Device:d
+           ACCUM @@linked_edges += e, @@linked_entities += d;
+           
+    // Directly shared IPs
+    Ips = SELECT ip FROM Start:c -(SHARES_IP:e)- IPAddress:ip
+          ACCUM @@linked_edges += e, @@linked_entities += ip;
+          
+    PRINT @@linked_entities, @@linked_edges;
+}
+
+// 3. Query: ring_expand
+// Expands multi-hop fraud rings across shared devices and IPs up to depth (e.g. 2 or 3)
+CREATE OR REPLACE QUERY ring_expand(VERTEX<Device> seed_device, INT max_depth = 2) FOR GRAPH FraudGraph {
+    SetAccum<VERTEX> @@ring_nodes;
+    ListAccum<EDGE> @@ring_edges;
+    
+    CurrentDevs = { seed_device };
+    @@ring_nodes += seed_device;
+    
+    WHILE CurrentDevs.size() > 0 AND max_depth > 0 DO
+        // Find cards sharing these devices
+        Cards = SELECT c FROM CurrentDevs:d -(SHARES_DEVICE:e)- Card:c
+                ACCUM @@ring_edges += e, @@ring_nodes += c;
+                
+        // Find other devices shared by these cards
+        NextDevs = SELECT d FROM Cards:c -(SHARES_DEVICE:e)- Device:d
+                   WHERE d NOT IN @@ring_nodes
+                   ACCUM @@ring_edges += e, @@ring_nodes += d;
+                   
+        CurrentDevs = NextDevs;
+        max_depth = max_depth - 1;
+    END;
+    
+    PRINT @@ring_nodes, @@ring_edges;
+}
+
+// 4. Query: closed_cases
+// Retrieves prior closed fraud cases touching a target card, its accounts, or its shared devices
+CREATE OR REPLACE QUERY closed_cases(VERTEX<Card> target_card) FOR GRAPH FraudGraph {
+    SetAccum<VERTEX<FraudCase>> @@past_cases;
+    
+    Start = { target_card };
+    
+    // Direct cases on card
+    CardCases = SELECT fc FROM Start:c -(ASSOCIATED_CASE:e)- FraudCase:fc
+                WHERE fc.status == "closed"
+                ACCUM @@past_cases += fc;
+                
+    // Cases on shared devices
+    DevCases = SELECT fc FROM Start:c -(SHARES_DEVICE)- Device:d -(ASSOCIATED_CASE:e)- FraudCase:fc
+               WHERE fc.status == "closed"
+               ACCUM @@past_cases += fc;
+               
+    // Cases on parent accounts
+    AccCases = SELECT fc FROM Start:c -(HAS_CARD)- Account:a -(ASSOCIATED_CASE:e)- FraudCase:fc
+               WHERE fc.status == "closed"
+               ACCUM @@past_cases += fc;
+               
+    PRINT @@past_cases;
+}
+
+// 5. Query: recurring_devices
+// Identifies device clusters / rings linked to >= min_cards distinct cards
+CREATE OR REPLACE QUERY recurring_devices(INT min_cards = 2) FOR GRAPH FraudGraph {
+    SumAccum<INT> @card_count;
+    
+    Devs = SELECT d FROM Card:c -(SHARES_DEVICE:e)- Device:d
+           ACCUM d.@card_count += 1
+           HAVING d.@card_count >= min_cards;
+           
+    PRINT Devs[Devs.device_fingerprint, Devs.device_type, Devs.is_rooted, Devs.is_vpn, Devs.@card_count];
+}
+
+INSTALL QUERY card_history, entity_links, ring_expand, closed_cases, recurring_devices

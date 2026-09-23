@@ -1,0 +1,116 @@
+// ========================================================
+// TigerGraph GSQL Schema: FraudGraph
+// Defines Vertices, Edges, and Graph for Fraud Investigation
+// ========================================================
+
+CREATE VERTEX Account (
+    PRIMARY_ID account_id STRING,
+    account_number STRING,
+    created_at DATETIME,
+    status STRING,
+    customer_risk_tier STRING,
+    email STRING,
+    phone STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Card (
+    PRIMARY_ID card_id STRING,
+    card_number_masked STRING,
+    card_type STRING,
+    expiration_date STRING,
+    status STRING,
+    daily_limit DOUBLE
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Transaction (
+    PRIMARY_ID transaction_id STRING,
+    amount DOUBLE,
+    timestamp DATETIME,
+    status STRING,
+    currency STRING,
+    channel STRING,
+    is_declined BOOL,
+    declined_reason STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Device (
+    PRIMARY_ID device_id STRING,
+    device_fingerprint STRING,
+    device_type STRING,
+    os STRING,
+    browser STRING,
+    is_rooted BOOL,
+    is_vpn BOOL
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX IPAddress (
+    PRIMARY_ID ip_address STRING,
+    country STRING,
+    city STRING,
+    isp STRING,
+    is_proxy BOOL,
+    threat_score DOUBLE
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Merchant (
+    PRIMARY_ID merchant_id STRING,
+    merchant_name STRING,
+    mcc_code STRING,
+    category STRING,
+    country STRING,
+    risk_level STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX FraudCase (
+    PRIMARY_ID case_id STRING,
+    trigger_type STRING,
+    created_at DATETIME,
+    closed_at DATETIME,
+    status STRING,
+    outcome STRING, // "confirmed_fraud", "cleared_benign", "inconclusive"
+    risk_score DOUBLE,
+    confidence DOUBLE,
+    investigator_notes STRING,
+    sar_filed BOOL
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX PolicyChunk (
+    PRIMARY_ID chunk_id STRING,
+    policy_code STRING,
+    title STRING,
+    content STRING,
+    category STRING,
+    mandatory_sar BOOL
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+// Edges connecting graph entities
+CREATE UNDIRECTED EDGE HAS_CARD (FROM Account, TO Card);
+CREATE DIRECTED EDGE TRANSACTED_WITH (FROM Card, TO Transaction);
+CREATE DIRECTED EDGE USES_DEVICE (FROM Transaction, TO Device);
+CREATE DIRECTED EDGE ORIGINATED_FROM (FROM Transaction, TO IPAddress);
+CREATE DIRECTED EDGE PAID_TO (FROM Transaction, TO Merchant);
+CREATE UNDIRECTED EDGE ASSOCIATED_CASE (FROM FraudCase, TO Transaction | FROM FraudCase, TO Card | FROM FraudCase, TO Device | FROM FraudCase, TO Account);
+CREATE UNDIRECTED EDGE SHARES_DEVICE (FROM Card, TO Device, count INT, last_seen DATETIME);
+CREATE UNDIRECTED EDGE SHARES_IP (FROM Card, TO IPAddress, count INT, last_seen DATETIME);
+CREATE DIRECTED EDGE GOVERNED_BY (FROM FraudCase, TO PolicyChunk, relevance_score DOUBLE);
+
+// Graph Definition
+CREATE GRAPH FraudGraph(
+    Account,
+    Card,
+    Transaction,
+    Device,
+    IPAddress,
+    Merchant,
+    FraudCase,
+    PolicyChunk,
+    HAS_CARD,
+    TRANSACTED_WITH,
+    USES_DEVICE,
+    ORIGINATED_FROM,
+    PAID_TO,
+    ASSOCIATED_CASE,
+    SHARES_DEVICE,
+    SHARES_IP,
+    GOVERNED_BY
+);

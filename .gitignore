@@ -1,0 +1,40 @@
+# Environment
+.env
+.env.local
+
+# Large data files (exceed GitHub limits)
+data/transactions.csv
+data/identity.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Benchmark outputs (regenerable)
+benchmark/outputs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
