@@ -138,6 +138,12 @@ class FraudInvestigationOrchestrator:
         state.uncertainty = eval_round_1.uncertainty
         state.risk_tier = eval_round_1.risk_tier
         state.primary_typology = eval_round_1.primary_typology
+        state.requires_evidence = eval_round_1.requires_evidence
+        state.evidence_gaps = eval_round_1.evidence_gaps
+        state.signal_contributions = eval_round_1.signal_contributions
+        state.memory_adjustment = eval_round_1.memory_adjustment
+        state.raw_risk = eval_round_1.raw_risk
+        state.initial_assessment = eval_round_1.model_dump()
 
         # Propose initial pre-evidence actions
         if state.risk_score >= config.RISK_THRESHOLD_HIGH:
@@ -195,6 +201,11 @@ class FraudInvestigationOrchestrator:
             state.confidence = eval_round_2.confidence
             state.uncertainty = eval_round_2.uncertainty
             state.risk_tier = eval_round_2.risk_tier
+            state.signal_contributions = eval_round_2.signal_contributions
+            state.memory_adjustment = eval_round_2.memory_adjustment
+            state.raw_risk = eval_round_2.raw_risk
+            state.requires_evidence = eval_round_2.requires_evidence
+            state.evidence_gaps = eval_round_2.evidence_gaps
 
             state.events.append(CaseEvent(
                 step_number=7,

@@ -47,6 +47,12 @@ class InvestigationState(BaseModel):
     uncertainty: float = 0.0
     risk_tier: str = "LOW"
     primary_typology: str = "Unclassified"
+    requires_evidence: bool = False
+    evidence_gaps: List[str] = Field(default_factory=list)
+    signal_contributions: List[Dict[str, Any]] = Field(default_factory=list)
+    memory_adjustment: float = 0.0
+    raw_risk: float = 0.0
+    initial_assessment: Optional[Dict[str, Any]] = None
     
     # Decisions & Actions
     actions_pre_evidence: List[ProposedAction] = Field(default_factory=list)

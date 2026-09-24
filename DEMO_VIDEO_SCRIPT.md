@@ -1,16 +1,17 @@
-# 🎬 Demo Video Script (3–5 Minutes)
+# 🎬 Demo Video Script (3 Minutes)
 **Project:** TigerGraph Agentic Fraud Investigation (HHGOA)  
-**Target Duration:** ~3:30 to 4:30 Minutes  
+**Target Duration:** ~3:00 to 3:30 Minutes  
 
 ---
 
 ## ⏱️ Video Breakdown Summary
-- **0:00 – 0:40**: Problem Hook & High-Level Architecture ($0.00 Free Tier)
-- **0:40 – 1:30**: Deep Dive into Case 1 (Syndicated Device Ring & 8-Step Investigation)
-- **1:30 – 2:30**: GraphRAG Policy Grounding & Historical Memory Precedents
-- **2:30 – 3:20**: Human-in-the-Loop Approval Queue & FinCEN SAR Filing
-- **3:20 – 4:00**: Real-Time Custom Trigger & Benchmark Suite
-- **4:00 – 4:30**: Conclusion & Future Roadmap
+- **0:00 – 0:30**: Problem Hook & Persistent Case Header (Detect)
+- **0:30 – 1:00**: Real TigerGraph Evidence Network & Multi-Hop Traversal (Connect)
+- **1:00 – 1:30**: "Why Flagged?" Grounded Signal Breakdown & Risk Evolution (Explain)
+- **1:30 – 2:00**: "Why Graph?" Micro-View: Tabular vs TigerGraph Contrast
+- **2:00 – 2:30**: Policy & Case Memory Chain + Entity Relationship Trace
+- **2:30 – 3:00**: Human-in-the-Loop Governance & Draft FinCEN SAR (Decide & Audit)
+- **3:00 – 3:30**: Benchmark Scorecard (20/20) & Summary
 
 ---
 
@@ -18,101 +19,122 @@
 
 ---
 
-### **Scene 1: Introduction & The Fraud Problem (0:00 – 0:40)**
+### **Scene 1: Introduction & Case Header (0:00 – 0:30)**
 
 **Visuals On Screen:**
-- Start on the **Streamlit Dashboard** homepage (`python -m streamlit run dashboard/app.py`).
-- Show the top navigation bar and system status indicators (**TigerGraph Backend, Groq Llama 3.3 70B, Google Gemini Flash**).
+- Start directly on the **Demo Mode: Fraud Command Center** (`streamlit run dashboard/app.py`).
+- Highlight the **Persistent Case Header**:
+  - `CASE BM-001`
+  - `CRITICAL RISK: 99/100`
+  - `CONFIDENCE: 77%`
+  - `FINCEN SAR: DRAFT REQUIRED`
+  - `Backend: MOCK GRAPH BACKEND / LIVE TIGERGRAPH CLOUD`
 
 **Voiceover / Script:**
-> *"Hi everyone! Welcome to our demo of the **TigerGraph Agentic Fraud Investigation System**—an autonomous, graph-native Financial Intelligence Unit copilot built entirely on a **zero-cost, $0.00 free-tier architecture**.*
+> *"Welcome to the **TigerGraph FIU Command Center**—an autonomous, graph-native fraud investigation system.*
 >
-> *Traditional tabular fraud models fail because they evaluate transactions in isolation. Modern financial crime is syndicated: fraudsters use rooted emulators, distributed device rings, and automated bot scripts across dozens of stolen cards.*
+> *Traditional tabular systems inspect transactions one by one, completely blind to coordinated fraud rings. Modern syndicates don't attack with one stolen card—they share rooted emulators, virtual devices, and money mule accounts across dozens of identities.*
 >
-> *Our solution combines **TigerGraph's multi-hop GSQL graph traversals**, **GraphRAG policy grounding**, **historical case memory**, and an **8-step autonomous agent loop** to investigate and resolve fraud in real time."*
+> *Our system turns one suspicious transaction into an end-to-end graph investigation: we detect the trigger, uncover the hidden relationship network in TigerGraph, explain why it's fraudulent, track risk evolution, and route high-stakes actions through human approval."*
 
 ---
 
-### **Scene 2: Case Investigation & 8-Step Decision Trail (0:40 – 1:30)**
+### **Scene 2: Real TigerGraph Evidence Network (0:30 – 1:00)**
 
 **Visuals On Screen:**
-- In the **Case Investigation Explorer**, select **BM-001 - CARD-2001 ($2,850.00) [device_ring]**.
-- Click the blue **"🚀 Run 8-Step Agent Investigation"** button.
-- Show the Top Metric Banner update: **Risk Score: 99.0/100 (CRITICAL)**, **Confidence: 77.0%**, **Disposition: CONFIRMED_FRAUD**, **SAR Required: YES ⚠️**.
-- Switch to the **"📜 8-Step Decision Trail"** tab and expand steps 1, 2, 3, and 6.
+- Focus on the **Center Column (Interactive Plotly Graph)**:
+  - Concentric radial layout displaying Card (Cyan), Device (Red), Account (Green), and Fraud Precedents (Rose).
+  - Click **`[ 🕸️ TRACE FRAUD RING ]`**: Watch non-ring nodes dim, isolating the shared device `DEV-RING-X9` and its 3 connected cards.
+  - Click **`[ ⚡ TRACE TO FRAUD ]`**: A bright crimson path appears: `Card → Device → Shared Card → CASE-HIST-001`.
+  - Open the **Node Inspector** dropdown and select `DEV-RING-X9` to inspect its rooted OS and emulator attributes.
 
 **Voiceover / Script:**
-> *"Let's investigate benchmark case **BM-001**—a suspicious \$2,850 transaction originating from device `DEV-RING-X9`.*
+> *"In the center is our **real TigerGraph evidence network**—generated directly from GSQL queries like `ring_expand`, `entity_links`, and `card_history`.*
 >
-> *When we click investigate, our 8-step agent immediately kicks off:*
-> - *In **Step 2**, it queries TigerGraph using GSQL `ring_expand` and `entity_links`, traversing multi-hop edges to discover that this single hardware fingerprint is actively shared across 3 distinct cards.*
-> - *In **Step 3**, our heuristic detector fires the `SIG-RING-02` signal with high severity.*
-> - *In **Step 6**, the mathematical risk engine computes a risk score of 99.0, placing this case in the CRITICAL tier and proposing immediate pre-evidence mitigation."*
+> *Watch what happens when we click **Trace Fraud Ring**: the system isolates the coordinated hardware hub `DEV-RING-X9`, showing how 3 separate cards share the exact same rooted mobile device.*
+>
+> *Next, we click **Trace to Fraud**. TigerGraph executes a multi-hop shortest-path traversal, proving in milliseconds that this device directly links to a confirmed historical SAR filing, `CASE-HIST-001`."*
 
 ---
 
-### **Scene 3: Graph Neighborhood & GraphRAG Grounding (1:30 – 2:30)**
+### **Scene 3: "Why Flagged?" & Risk Evolution (1:00 – 1:30)**
 
 **Visuals On Screen:**
-- Click on the **"🕸️ Graph Neighborhood"** tab. Show the interactive Plotly network diagram linking the Card, Device, IP, and Account.
-- Click on the **"📚 Policy & Memory Evidence"** tab. Expand the retrieved policy chunk (**Typology B: Distributed Device Ring**) and historical memory match (**CASE-HIST-001**).
+- Focus on the **Left Column ("Why Was This Case Flagged?")**:
+  - Show the mathematical signal points: `+28.5 pts Distributed Device Ring`, `+25.0 pts Historical Precedent Match`.
+  - Highlight the methodology note: *Risk is calculated strictly by the deterministic RiskEngine; LLM explains evidence.*
+- Focus on the **Right Column ("Investigation Evolution")**:
+  - Show `Round 1: Heuristic (84/100) → Round 2: Multi-Hop GSQL (99/100) [+15 pts]`.
 
 **Voiceover / Script:**
-> *"Under the **Graph Neighborhood** tab, we can visually inspect the entity graph linking this card to the device ring and IP routing footprint.*
+> *"On the left is our **Why Flagged?** evidence panel. Crucially, these scores are NOT invented by an LLM hallucination—they are mathematically derived from our deterministic RiskEngine, showing the exact point contribution for each fired signal.*
 >
-> *Crucially, our agent doesn't guess or hallucinate—it uses **GraphRAG policy grounding**.*
-> *Under the **Policy & Memory Evidence** tab, you can see how it semantically retrieved the exact bank SOP clause from `POL-FRD-2026` regarding multi-device rings, along with historical closed case `CASE-HIST-001`, which previously confirmed fraud on this exact device ring. This precedent dynamically adjusted our agent's confidence and risk assessment."*
+> *On the right, we show **Investigation Evolution**. In Round 1, heuristic signals flagged a risk of 84. Because uncertainty exceeded 0.30, our agent autonomously triggered Round 2: a 3-hop GSQL ring expansion that discovered additional hardware collusion, escalating the final score to 99 with 77% confidence."*
 
 ---
 
-### **Scene 4: Human-in-the-Loop Approval & FinCEN SAR Filing (2:30 – 3:20)**
+### **Scene 4: "Why Graph?" Micro-View (1:30 – 2:00)**
 
 **Visuals On Screen:**
-- Click on the **"📑 Action Audit & SAR"** tab. Scroll down to display the generated **FinCEN 7-Point SAR Narrative**.
-- In the sidebar navigation, click on **"Human Approval Queue"**.
-- Point out the queued `freeze_card` and `file_sar` critical actions.
-- Click **"✅ Approve Action"** and show the instant status update.
+- Scroll down and open the **"🔍 Why Graph? (Tabular vs TigerGraph)"** tab.
+- Show the side-by-side comparison:
+  - Left: *Traditional Row-Level SQL* rates the $2,850 transaction as Moderate/Low (35-45/100).
+  - Right: *TigerGraph Multi-Hop Investigation* rates it as CRITICAL (99/100).
 
 **Voiceover / Script:**
-> *"Now let's look at governance. Under **Action Audit & SAR**, notice how our agent separated non-critical actions from critical actions.*
+> *"Under the **Why Graph?** tab, we demonstrate the core value proposition for financial institutions.*
 >
-> *Because high-impact punitive actions like `freeze_card` and `file_sar` can severely impact customers, our policy strictly forbids auto-execution. Instead, they are routed to the **Human Approval Queue**.*
+> *A traditional row-level SQL rule engine looks at this \$2,850 transaction and sees an active card at a normal retail merchant—it approves it.*
 >
-> *As a Compliance Officer, I can review the rationale and approve the action with a single click. Furthermore, because aggregate fraud exceeded the mandatory \$5,000 regulatory threshold, the agent synthesized a complete, FinCEN-compliant 7-point SAR narrative ready for filing."*
+> *TigerGraph looks beyond the isolated transaction: it traverses multi-hop edges to uncover the shared hardware fingerprint, multiple card collisions, and links to prior fraud. Traditional row-level analysis sees the transaction; TigerGraph exposes the syndicate behind it."*
 
 ---
 
-### **Scene 5: Real-Time Custom Trigger & Benchmark Scorecard (3:20 – 4:00)**
+### **Scene 5: Entity Relationship Trace & Policy Grounding (2:00 – 2:30)**
 
 **Visuals On Screen:**
-- In the sidebar, select **"Interactive Case Trigger"**.
-- Enter a transaction amount of \$12,000, select `ato_combo`, and click **"🚀 Investigate Custom Transaction"**.
-- Quickly show the terminal running `python benchmark/run_benchmark.py --backend mock`, displaying the clean 20/20 summary grid.
+- Click the **"💰 Entity Relationship & Transaction Trace"** tab.
+  - Step 1: Card → Account ingress ($2,850).
+  - Steps 2–4: Account → Merchant egress.
+  - Show cycle detection summary.
+- Switch to the **"👥 Identity Collision Radar"** tab, showing 3 customer profiles sharing one hardware device.
 
 **Voiceover / Script:**
-> *"Analysts can also test arbitrary transactions on the fly in our **Interactive Case Trigger** tab.*
+> *"Under **Entity Relationship Trace**, we reconstruct the chronological flow of transactions, verifying whether funds follow a linear settlement or a cyclic laundering loop.*
 >
-> *In our automated evaluation, we ran all 20 official benchmark test cases across device rings, account takeovers, BIN attacks, and benign travel. Every case was successfully investigated, categorized, and written into schema-validated answer files in milliseconds."*
+> *In our **Identity Collision Radar**, we instantly spot synthetic identity creation: multiple distinct customer accounts originating from one physical hardware device."*
 
 ---
 
-### **Scene 6: Conclusion (4:00 – 4:30)**
+### **Scene 6: Human-in-the-Loop & Draft SAR (2:30 – 3:00)**
 
 **Visuals On Screen:**
-- Switch back to the Streamlit Dashboard or GitHub repository view.
-- Show `README.md`, `ARCHITECTURE.md`, and test outputs.
+- Click the **"⚖️ Action Decision & Human Governance"** tab.
+  - Recommended Action: `FREEZE CARD → Target: C12382-K1`.
+  - Status: `⏳ WAITING FOR HUMAN APPROVAL`.
+  - Click **`[ APPROVE ]`**: Status instantly updates to `✅ APPROVED (Audit Event Recorded)`.
+- Click the **"📑 Draft SAR Narrative"** tab.
+  - Show the FinCEN 7-point regulatory draft.
+  - Point out the disclaimer: *Draft narrative requiring human compliance review before filing.*
+  - Show the **"Download Draft SAR (.txt)"** button.
 
 **Voiceover / Script:**
-> *"In summary, the TigerGraph Agentic Fraud Investigation system demonstrates how combining graph database traversals, GraphRAG semantic grounding, and resilient LLM orchestration creates an auditable, enterprise-ready defense against modern financial crime—all at zero infrastructure cost.*
+> *"Now for governance. Our system operates under strict **Human-in-the-Loop compliance**.*
 >
-> *Thank you for watching, and check out our GitHub repository and technical blog post for full code and documentation!"*
+> *The AI agent proposes high-consequence actions like `freeze_card` and `file_sar`, but policy forbids autonomous execution. As an investigator, I review the grounded evidence and click **Approve**.*
+>
+> *Under **Draft SAR Narrative**, the system synthesizes a complete, FinCEN 111-compliant 7-point regulatory report, ready for compliance review and one-click export."*
 
 ---
 
-## 🎙️ Recording Tips for the Presenter:
-1. **Resolution**: Record at 1080p (1920x1080) in full screen.
-2. **Launch Command**: Start the dashboard before recording with:
-   ```powershell
-   python -m streamlit run dashboard/app.py
-   ```
-3. **Cursor Cues**: Move your mouse deliberately to highlight the tabs, risk score delta badges, and approval buttons as you speak.
+### **Scene 7: Benchmark Scorecard & Conclusion (3:00 – 3:30)**
+
+**Visuals On Screen:**
+- In the sidebar, select **"📊 20-Case Benchmark Scorecard"**.
+  - Show 20/20 cases processed, ~250ms average latency, and category breakdown.
+- Highlight the live deployment URL and GitHub repository.
+
+**Voiceover / Script:**
+> *"Finally, in our **20-Case Benchmark Scorecard**, the agent successfully processed 100% of official test cases across device rings, account takeovers, card testing, and travel anomalies in an average of 250 milliseconds per case.*
+>
+> *TigerGraph gives financial institutions what tabular models can't: multi-hop relationship visibility, explainable evidence, and auditable human control. Thank you!"*

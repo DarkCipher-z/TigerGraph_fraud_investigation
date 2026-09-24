@@ -17,6 +17,9 @@ class AssessmentResult(BaseModel):
     requires_evidence: bool
     fired_signals: List[Dict[str, Any]]
     evidence_gaps: List[str]
+    signal_contributions: List[Dict[str, Any]] = Field(default_factory=list)
+    memory_adjustment: float = 0.0
+    raw_risk: float = 0.0
 
 
 class RiskEngine:
@@ -53,8 +56,19 @@ class RiskEngine:
 
         # 1. Compute weighted risk score
         total_weight = sum(s.get("weight", 0.1) for s in signals)
+        signal_contributions = []
         if total_weight > 0:
             raw_risk = sum(s.get("severity", 50.0) * s.get("weight", 0.1) for s in signals) / total_weight
+            for s in signals:
+                sig_pts = round((s.get("severity", 50.0) * s.get("weight", 0.1)) / total_weight, 2)
+                signal_contributions.append({
+                    "signal_code": s.get("signal_code", "SIG"),
+                    "name": s.get("name", "Unknown Signal"),
+                    "severity": s.get("severity", 50.0),
+                    "weight": s.get("weight", 0.1),
+                    "contribution": sig_pts,
+                    "evidence": s.get("evidence", "")
+                })
         else:
             raw_risk = 50.0
 
@@ -114,5 +128,8 @@ class RiskEngine:
             primary_typology=primary_typology,
             requires_evidence=requires_evidence,
             fired_signals=signals,
-            evidence_gaps=evidence_gaps
+            evidence_gaps=evidence_gaps,
+            signal_contributions=signal_contributions,
+            memory_adjustment=round(memory_boost, 2),
+            raw_risk=round(raw_risk, 2)
         )
