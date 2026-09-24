@@ -30,11 +30,13 @@ class TigerGraphClient:
                     username=config.TG_USERNAME,
                     password=config.TG_PASSWORD,
                     graphname=config.TG_GRAPH,
-                    apiToken=config.TG_API_TOKEN or None,
-                    secret=config.TG_SECRET or None
+                    apiToken=config.TG_API_TOKEN or None
                 )
                 if config.TG_SECRET and not config.TG_API_TOKEN:
-                    self.conn.getToken(config.TG_SECRET)
+                    try:
+                        self.conn.getToken(config.TG_SECRET)
+                    except Exception as tok_err:
+                        logger.warning("Could not obtain token with TG_SECRET: %s", tok_err)
                 logger.info("Successfully connected to live TigerGraph instance at %s", config.TG_HOST)
             except Exception as e:
                 logger.warning("Failed to connect to live TigerGraph instance (%s). Falling back to MockGraphBackend.", e)

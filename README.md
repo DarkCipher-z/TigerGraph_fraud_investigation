@@ -131,9 +131,9 @@ Or view the live cloud deployment: **[Streamlit Community Cloud Deployment](http
    - Adjusts risk and confidence dynamically based on historical precedent outcomes.
 
 5. **Multi-Tier LLM Circuit Breaker**:
-   - Primary: **Groq (Llama 3.3 70B Versatile)**
-   - Secondary: **Google AI Studio (Gemini 2.5 Flash)**
-   - Tertiary: **Deterministic Rule Engine** (guarantees 100% uptime and offline execution).
+   - Primary: **Groq (Llama 3.3 70B Versatile / Open Models)**
+   - Secondary: **Google AI Studio (Gemini Flash Series)**
+   - Tertiary: **Deterministic Rule Engine** (guarantees offline execution and graceful degradation when external API keys are invalid, rate-limited, or offline).
    - *LLM explains grounded evidence and proposes actions; it does not determine the numeric score.*
 
 6. **Action Audit & Human-in-the-Loop Approval**:
@@ -143,6 +143,16 @@ Or view the live cloud deployment: **[Streamlit Community Cloud Deployment](http
 7. **Draft FinCEN SAR Generator**:
    - Generates compliant 7-point regulatory narratives for transactions violating AML mandates.
    - Labeled clearly: *Draft narrative requiring human compliance review before filing.*
+
+---
+
+## 🔧 LLM Provider Troubleshooting & Diagnostics
+
+- **Diagnostic Command**: Run `python scripts/check_llm_providers.py` to test live connectivity to all configured providers without exposing secrets.
+- **Provider Authentication & Quota**:
+  - `401 Unauthorized`: Root cause is an invalid or expired API key. Verify credentials in your `.env` or deployment environment secrets.
+  - `429 Quota / Rate Limit`: Free-tier project quota exceeded for the requested model. The circuit breaker automatically routes to the Deterministic Rule Engine without failing.
+- **Deployment Secrets**: Note that cloud platforms (Streamlit Community Cloud, Render) manage environment variables independently from your local `.env`. Ensure secrets are populated in each deployment dashboard.
 
 ---
 
