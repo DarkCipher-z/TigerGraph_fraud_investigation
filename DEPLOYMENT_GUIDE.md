@@ -33,7 +33,7 @@ git push -u origin main
    ```
 7. Click **"Deploy!"**
 
-Your live app will be available at: `https://<your-app-name>.streamlit.app`
+Your live app is available at: **[https://tigergraphfraudinvestigation-dbshdqupegxrfbi8zqv8wh.streamlit.app/](https://tigergraphfraudinvestigation-dbshdqupegxrfbi8zqv8wh.streamlit.app/)**
 
 ---
 

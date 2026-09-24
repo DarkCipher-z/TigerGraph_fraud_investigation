@@ -146,6 +146,7 @@ We evaluated the system against all 20 benchmark test cases covering device ring
 ---
 
 ## 🖥️ Interactive Streamlit Analyst Dashboard
+> **Live Demo:** [https://tigergraphfraudinvestigation-dbshdqupegxrfbi8zqv8wh.streamlit.app/](https://tigergraphfraudinvestigation-dbshdqupegxrfbi8zqv8wh.streamlit.app/)
 
 Our Streamlit dashboard provides fraud investigators with full real-time visibility:
 1. **Case Explorer**: Instant breakdown of risk score, confidence, uncertainty, and disposition.
