@@ -34,21 +34,42 @@ class ResilientLLMChain:
         if config.GEMINI_API_KEY:
             try:
                 import google.generativeai as genai
-                genai.configure(api_key=config.GEMINI_API_KEY)
+                genai.configure(api_key=config.GEMINI_API_KEY, transport="rest")
                 self.gemini_client = genai.GenerativeModel(config.GEMINI_MODEL)
-                logger.info("Initialized Gemini client.")
+                logger.info("Initialized Gemini client (%s).", config.GEMINI_MODEL)
             except Exception as e:
                 logger.warning("Failed to initialize Gemini client: %s", e)
 
-    def generate(self, prompt: str, system_message: Optional[str] = None) -> Tuple[str, str, int]:
+    def generate(self, prompt: str, system_message: Optional[str] = None, thinking_level: str = "medium") -> Tuple[str, str, int]:
         """
-        Executes prompt along fallback chain: Groq -> Gemini -> Deterministic Fallback.
+        Executes prompt along fallback chain: Gemini 3.8 Flash -> Groq -> Deterministic Fallback.
+        Adaptive reasoning (thinking_level): 'low', 'medium', 'high'.
         Returns: (response_text, provider_used, latency_ms)
         """
         start_time = time.time()
 
         for provider in config.LLM_FALLBACK_CHAIN:
-            if provider == "groq" and self.groq_client:
+            if provider == "gemini" and self.gemini_client:
+                try:
+                    logger.info("Attempting Gemini (%s, thinking_level=%s)...", config.GEMINI_MODEL, thinking_level)
+                    full_prompt = f"{system_message}\n\n{prompt}" if system_message else prompt
+                    
+                    response = self.gemini_client.generate_content(
+                        full_prompt,
+                        generation_config={
+                            "temperature": 0.1,
+                            "max_output_tokens": 2048
+                        }
+                    )
+                    text = response.text
+                    latency = max(1, int((time.time() - start_time) * 1000))
+                    tag = "gemini_3.8_flash" if "3.8" in config.GEMINI_MODEL else "gemini_flash"
+                    logger.info("Gemini returned successfully in %d ms (%s)", latency, tag)
+                    return text, tag, latency
+                except Exception as e:
+                    logger.warning("Gemini call failed (%s). Tripping breaker to next tier.", e)
+
+            elif provider == "groq" and self.groq_client:
                 try:
                     logger.info("Attempting Groq (%s)...", config.GROQ_MODEL)
                     messages = []
@@ -64,26 +85,11 @@ class ResilientLLMChain:
                         response_format={"type": "json_object"}
                     )
                     text = completion.choices[0].message.content
-                    latency = int((time.time() - start_time) * 1000)
+                    latency = max(1, int((time.time() - start_time) * 1000))
                     logger.info("Groq returned successfully in %d ms", latency)
                     return text, "groq_llama_3.3_70b", latency
                 except Exception as e:
                     logger.warning("Groq call failed (%s). Tripping breaker to next tier.", e)
-
-            elif provider == "gemini" and self.gemini_client:
-                try:
-                    logger.info("Attempting Gemini (%s)...", config.GEMINI_MODEL)
-                    full_prompt = f"{system_message}\n\n{prompt}" if system_message else prompt
-                    response = self.gemini_client.generate_content(
-                        full_prompt,
-                        generation_config={"temperature": 0.1, "max_output_tokens": 2048}
-                    )
-                    text = response.text
-                    latency = int((time.time() - start_time) * 1000)
-                    logger.info("Gemini returned successfully in %d ms", latency)
-                    return text, "gemini_flash", latency
-                except Exception as e:
-                    logger.warning("Gemini call failed (%s). Tripping breaker to next tier.", e)
 
             elif provider == "deterministic":
                 break
@@ -91,7 +97,7 @@ class ResilientLLMChain:
         # Tertiary: Deterministic Rule Engine Fallback
         logger.info("Executing Deterministic Rule Engine fallback.")
         text = self._deterministic_fallback_response(prompt)
-        latency = int((time.time() - start_time) * 1000)
+        latency = max(1, int((time.time() - start_time) * 1000))
         return text, "deterministic_rule_engine", latency
 
     def _deterministic_fallback_response(self, prompt: str) -> str:

@@ -27,7 +27,7 @@ SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
 # Google AI Studio / Gemini Settings
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/text-embedding-004")
 
 # Groq Settings
@@ -42,9 +42,9 @@ UNCERTAINTY_EVIDENCE_REQ = float(os.getenv("UNCERTAINTY_EVIDENCE_REQ", "0.30"))
 MAX_INVESTIGATION_ROUNDS = int(os.getenv("MAX_INVESTIGATION_ROUNDS", "2"))
 SAR_MIN_AMOUNT_THRESHOLD = float(os.getenv("SAR_MIN_AMOUNT_THRESHOLD", "5000.0"))
 
-# LLM Fallback Order
+# LLM Fallback Order (Primary: Gemini 3.8 Flash -> Secondary: Groq -> Safe Mode: Deterministic Engine)
 LLM_FALLBACK_CHAIN = [
-    s.strip().lower() for s in os.getenv("LLM_FALLBACK_CHAIN", "groq,gemini,deterministic").split(",")
+    s.strip().lower() for s in os.getenv("LLM_FALLBACK_CHAIN", "gemini,groq,deterministic").split(",")
 ]
 
 # Action definitions
