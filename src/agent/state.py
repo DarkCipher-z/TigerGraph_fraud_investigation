@@ -41,7 +41,7 @@ class InvestigationState(BaseModel):
     retrieved_policies: List[Dict[str, Any]] = Field(default_factory=list)
     similar_cases: List[Dict[str, Any]] = Field(default_factory=list)
     
-    # Quantitative Assessment
+    # Quantitative Assessment & Real Evolution History
     risk_score: float = 0.0
     confidence: float = 0.0
     uncertainty: float = 0.0
@@ -53,12 +53,22 @@ class InvestigationState(BaseModel):
     memory_adjustment: float = 0.0
     raw_risk: float = 0.0
     initial_assessment: Optional[Dict[str, Any]] = None
+    assessment_history: List[Dict[str, Any]] = Field(default_factory=list)
     
     # Decisions & Actions
     actions_pre_evidence: List[ProposedAction] = Field(default_factory=list)
     actions_post_evidence: List[ProposedAction] = Field(default_factory=list)
     final_disposition: str = "inconclusive"
     reasoning_summary: str = ""
+    
+    # Evidence Validation & Agentic Planner Artefacts
+    evidence_items: List[Dict[str, Any]] = Field(default_factory=list)
+    integrity_report: Dict[str, Any] = Field(default_factory=dict)
+    investigation_plan: Optional[Dict[str, Any]] = None
+    supporting_evidence: List[str] = Field(default_factory=list)
+    weakening_evidence: List[str] = Field(default_factory=list)
+    counterfactual_notes: str = ""
+    contradiction_notes: str = ""
     
     # SAR Filing
     requires_sar: bool = False
@@ -68,6 +78,11 @@ class InvestigationState(BaseModel):
     # Audit trail of 8 steps
     events: List[CaseEvent] = Field(default_factory=list)
     
-    # LLM execution info
+    # Telemetry, Provider & Execution Tracking
     primary_llm_provider: Optional[str] = None
+    llm_model_name: Optional[str] = None
+    thinking_level_used: str = "medium"
     total_execution_ms: int = 0
+    executed_queries: List[Dict[str, Any]] = Field(default_factory=list)
+    step_latencies_ms: Dict[str, int] = Field(default_factory=dict)
+

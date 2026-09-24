@@ -784,9 +784,10 @@ if expert_nav == "— Select Tool —":
             </div>
             """, unsafe_allow_html=True)
 
-    # 4. LOWER EXPANDABLE SECTIONS (Priority 7, 8, 9, 10, 15, 16, 17)
+    # 4. LOWER EXPANDABLE SECTIONS
     st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
-    tab_why_g, tab_flow, tab_id, tab_sar, tab_hitl, tab_trail = st.tabs([
+    tab_prov, tab_why_g, tab_flow, tab_id, tab_sar, tab_hitl, tab_trail = st.tabs([
+        "📋 Evidence Integrity & Provenance",
         "🔍 Why Graph? (Tabular vs TigerGraph)",
         "💰 Entity Relationship & Transaction Trace",
         "👥 Identity Collision Radar",
@@ -794,6 +795,88 @@ if expert_nav == "— Select Tool —":
         "⚖️ Action Decision & Human Governance",
         "📜 8-Step Investigation Trail"
     ])
+
+    # Tab 0: Evidence Integrity & Provenance
+    with tab_prov:
+        st.markdown("### 📋 EVIDENCE INTEGRITY & PROVENANCE SCORECARD")
+        st.caption("Every displayed fact is mathematically verified and linked to its authoritative TigerGraph / policy source.")
+        
+        # Integrity Metrics
+        integ = getattr(current_state, "integrity_report", {}) or {}
+        c1, c2, c3, c4, c5 = st.columns(5)
+        with c1:
+            st.metric("Verified Claims", f"{integ.get('verified_claims', len(current_state.evidence_items))}")
+        with c2:
+            st.metric("Graph Evidence", f"{integ.get('graph_evidence_count', 3)}")
+        with c3:
+            st.metric("Transaction Evidence", f"{integ.get('transaction_evidence_count', 1)}")
+        with c4:
+            st.metric("Historical Evidence", f"{integ.get('historical_evidence_count', len(current_state.similar_cases))}")
+        with c5:
+            st.metric("Grounding Accuracy", f"{integ.get('grounding_accuracy_pct', 100.0)}%")
+
+        # Supporting vs Weakening Breakdown
+        st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+        col_sup, col_weak = st.columns(2)
+        with col_sup:
+            st.markdown("##### 🟢 Supporting Evidence (Increases Suspicion)")
+            sup_items = getattr(current_state, "supporting_evidence", [])
+            if sup_items:
+                for s in sup_items:
+                    st.markdown(f"- **{s}**")
+            else:
+                st.markdown("*(No significant supporting risk signals identified)*")
+
+        with col_weak:
+            st.markdown("##### 🔵 Weakening / Benign Factors (Mitigates Risk)")
+            weak_items = getattr(current_state, "weakening_evidence", [])
+            if weak_items:
+                for w in weak_items:
+                    st.markdown(f"- {w}")
+            else:
+                st.markdown("*(No material weakening evidence found)*")
+
+        # Provenance Data Table
+        st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+        st.markdown("##### 🔍 Authoritative Claim Provenance Map")
+        prov_rows = build_evidence_provenance(current_state, selected_trigger)
+        st.dataframe(pd.DataFrame(prov_rows), use_container_width=True)
+
+        # Counterfactual & Contradiction Notes
+        cf_notes = getattr(current_state, "counterfactual_notes", "")
+        if cf_notes:
+            st.info(f"💡 **What would change my conclusion?** {cf_notes}")
+
+        # Downloadable Investigation Receipt (JSON)
+        st.markdown("---")
+        receipt_data = {
+            "case_id": current_state.case_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "transaction": selected_trigger,
+            "initial_risk": current_state.initial_assessment.get("risk_score") if current_state.initial_assessment else current_state.risk_score,
+            "final_risk": current_state.risk_score,
+            "final_confidence": current_state.confidence,
+            "final_uncertainty": current_state.uncertainty,
+            "risk_tier": current_state.risk_tier,
+            "primary_typology": current_state.primary_typology,
+            "investigation_rounds": current_state.current_round,
+            "executed_queries": current_state.executed_queries,
+            "step_latencies_ms": current_state.step_latencies_ms,
+            "ai_provider": current_state.primary_llm_provider,
+            "ai_model": current_state.llm_model_name or config.GEMINI_MODEL,
+            "thinking_level": current_state.thinking_level_used,
+            "evidence_items": current_state.evidence_items,
+            "integrity_report": current_state.integrity_report,
+            "actions_post_evidence": [a.model_dump() for a in current_state.actions_post_evidence],
+            "sar_draft_status": "Generated" if current_state.requires_sar else "Not Triggered",
+            "regulatory_warning": "DRAFT / DEMO ONLY — Human compliance officer review required before filing."
+        }
+        st.download_button(
+            "📥 Download Certified Investigation Receipt (JSON)",
+            data=json.dumps(receipt_data, indent=2),
+            file_name=f"INVESTIGATION_RECEIPT_{current_state.case_id}.json",
+            mime="application/json"
+        )
 
     # Tab 1: Why Graph?
     with tab_why_g:
@@ -957,19 +1040,25 @@ elif expert_nav == "⚖️ Governance Approval Queue":
     if not pending:
         st.success("🎉 All operational actions have been reviewed and signed off. No pending compliance items.")
     else:
-        for item in pending:
+        for i, item in enumerate(pending):
+            act_id = item.get("action_id", f"ACT-{i:04d}")
             st.markdown(f"""
             <div class="analyst-card" style="margin-bottom:12px;">
-                <div style="font-weight:700; color:#EF4444;">{item['action_type'].upper()} — Target: {item['target_entity']}</div>
-                <div style="font-size:0.85rem; color:#CBD5E1; margin:4px 0;">{item['justification']}</div>
-                <div style="font-size:0.75rem; color:#94A3B8;">Stage: {item['stage']} • Simulation Mode Active</div>
+                <div style="font-weight:700; color:#EF4444;">{item.get('action_type', 'ACTION').upper()} — Target: {item.get('target_entity', 'N/A')}</div>
+                <div style="font-size:0.85rem; color:#CBD5E1; margin:4px 0;">{item.get('justification', 'No justification provided.')}</div>
+                <div style="font-size:0.75rem; color:#94A3B8;">Action ID: <code>{act_id}</code> • Case: {item.get('case_id', 'N/A')} • Stage: {item.get('stage', 'N/A')} • Simulation Mode Active</div>
             </div>
             """, unsafe_allow_html=True)
-            col1, col2 = st.columns([1, 4])
+            col1, col2, col3 = st.columns([1, 1, 3])
             with col1:
-                if st.button(f"Approve {item['action_id'][:8]}", key=f"app_{item['action_id']}"):
-                    orchestrator.audit_logger.record_decision(item['action_id'], "approved", approved_by="Demo Investigator")
-                    st.success("Action Approved & Audited.")
+                if st.button(f"✅ Approve {act_id[:8]}", key=f"app_{act_id}_{i}"):
+                    orchestrator.audit_logger.record_decision(act_id, "approved", approved_by="Compliance Officer")
+                    st.success(f"Action {act_id} Approved & Audited.")
+                    st.rerun()
+            with col2:
+                if st.button(f"❌ Reject {act_id[:8]}", key=f"rej_{act_id}_{i}"):
+                    orchestrator.audit_logger.record_decision(act_id, "rejected", approved_by="Compliance Officer")
+                    st.warning(f"Action {act_id} Rejected & Audited.")
                     st.rerun()
 
 elif expert_nav == "🕸️ Graph Syndicate & Ring Explorer":

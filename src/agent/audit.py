@@ -42,7 +42,9 @@ class ActionAuditLogger:
             action.status = "queued_for_approval"
             execution_result = {"result": "pending_human_review", "gated_by_policy": True}
 
+        action_id = f"ACT-{hash(case_id + action.action_type + action.target_entity + stage) & 0xFFFFFFFF:08x}"
         record = {
+            "action_id": action_id,
             "case_id": case_id,
             "stage": stage,
             "action_type": action.action_type,
@@ -56,8 +58,23 @@ class ActionAuditLogger:
         }
 
         self.in_memory_logs.append(record)
-        logger.info("Audit logged [%s] action: %s for case %s (Status: %s)", stage, action.action_type, case_id, action.status)
+        logger.info("Audit logged [%s] action: %s (%s) for case %s (Status: %s)", stage, action.action_type, action_id, case_id, action.status)
         return record
+
+    def record_decision(self, action_id: str, decision: str = "approved", approved_by: str = "Compliance Officer") -> bool:
+        """Records human decision (approved or rejected) for an action."""
+        for log in self.in_memory_logs:
+            if log.get("action_id") == action_id and log.get("status") == "queued_for_approval":
+                log["status"] = decision
+                log["approved_by"] = approved_by
+                log["approved_at"] = datetime.now(timezone.utc).isoformat()
+                log["execution_result"] = {
+                    "result": "executed" if decision == "approved" else "rejected",
+                    "decided_by_human": approved_by
+                }
+                logger.info("Action %s decision recorded: %s by %s", action_id, decision, approved_by)
+                return True
+        return False
 
     def approve_action(self, case_id: str, action_type: str, approved_by: str) -> bool:
         """Approves a queued critical action and triggers mock execution."""
@@ -65,7 +82,7 @@ class ActionAuditLogger:
             if log["case_id"] == case_id and log["action_type"] == action_type and log["status"] == "queued_for_approval":
                 log["status"] = "approved"
                 log["approved_by"] = approved_by
-                log["approved_at"] = datetime.utcnow().isoformat() + "Z"
+                log["approved_at"] = datetime.now(timezone.utc).isoformat()
                 log["execution_result"] = {"result": "success", "executed_after_human_approval": True}
                 logger.info("Action %s for case %s approved by %s", action_type, case_id, approved_by)
                 return True
@@ -78,3 +95,4 @@ class ActionAuditLogger:
     def get_pending_approvals(self) -> List[Dict[str, Any]]:
         """Returns all queued actions awaiting analyst review."""
         return [log for log in self.in_memory_logs if log["status"] == "queued_for_approval"]
+
