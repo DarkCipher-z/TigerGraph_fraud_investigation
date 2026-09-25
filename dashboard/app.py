@@ -10,6 +10,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+import time
 from datetime import datetime, timezone
 import streamlit as st
 import plotly.graph_objects as go
