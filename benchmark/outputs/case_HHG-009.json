@@ -1,0 +1,79 @@
+{
+  "case_id": "HHG-009",
+  "transaction_id": "3581141",
+  "trigger_type": "customer_report",
+  "subject": {
+    "card_id": "C08299-K1",
+    "account_id": "C08299",
+    "amount": 30.02,
+    "device_id": "DEV-C08299-K1",
+    "ip_address": "198.51.100.42"
+  },
+  "investigation_record": {
+    "risk_score": 86.0,
+    "confidence": 0.68,
+    "uncertainty": 0.308,
+    "risk_tier": "CRITICAL",
+    "primary_typology": "Customer Unrecognized Charge Dispute",
+    "final_disposition": "escalate_to_analyst",
+    "reasoning_summary": "High-value amount anomaly and velocity departure detected. Investigation indicates elevated risk requiring stepped-up verification and compliance review.",
+    "investigation_rounds": 1,
+    "llm_provider": "deterministic_rule_engine",
+    "execution_time_ms": 16214
+  },
+  "fired_signals": [
+    {
+      "signal_id": "SIG-REP-01",
+      "typology_code": "CUST-DISPUTE",
+      "name": "Customer Unrecognized Charge Dispute",
+      "severity": 86.0,
+      "weight": 0.35,
+      "evidence": "Direct cardholder dispute received: 'Customer C08299 message: 'I never made this $30.02 purchase. Please check my card.' Refers to 3581141.'.",
+      "requires_evidence": false
+    }
+  ],
+  "retrieved_policies": [],
+  "historical_case_memory": [],
+  "actions_pre_evidence": [
+    {
+      "action_type": "block_account",
+      "target_entity": "C08299-K1",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Initial high-risk pattern detected in round 1.",
+      "stage": "pre_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "actions_post_evidence": [
+    {
+      "action_type": "step_up_mfa",
+      "target_entity": "Customer",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Step-up authentication required for high-risk authorization.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "action_type": "file_sar",
+      "target_entity": "FinCEN / FIU",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Mandatory SAR filing for suspicious activity totaling $30.02.",
+      "stage": "post_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "sar_filing": {
+    "required": true,
+    "sar_reference_id": "SAR-FINCEN-20260925-HHG-009",
+    "narrative": "================================================================================\n*** DRAFT \u2014 FOR COMPLIANCE REVIEW ONLY \u2014 NOT A FILED REPORT ***\nFINCEN SUSPICIOUS ACTIVITY REPORT (SAR) NARRATIVE\nReference ID: SAR-FINCEN-20260925-HHG-009 | Date: 2026-09-25\n================================================================================\n\n1. SUBJECT IDENTIFICATION & ACCOUNT PROFILE:\n   Primary Subject Card ID: C08299-K1\n   Linked Account Number: C08299\n   Customer Status: Active Retail Account under Enterprise Monitoring\n\n2. CHRONOLOGICAL TIMELINE OF SUSPICIOUS EVENTS:\n   Suspicious transaction initiated at 2026-09-25T04:12:50.869776+00:00 for $30.02.\n   Context: Customer C08299 message: 'I never made this $30.02 purchase. Please check my card.' Refers to 3581141.\n\n3. DIGITAL IDENTIFIERS & GEOGRAPHIC FOOTPRINT:\n   Device Fingerprint: DEV-C08299-K1\n   Originating IP Address: 198.51.100.42\n   Location Analysis: High risk/anonymized network layer detected.\n\n4. INGRESS / EGRESS MONETARY FLOWS & MERCHANTS:\n   Target Merchant: N/A\n   Transaction Category: Rapid High-Value Outflow / Electronic Fund Transfer\n\n5. GRAPH NETWORK & SYNDICATE LINKAGE EVIDENCE:\n   TigerGraph GSQL expansion identified multi-hop linkages to shared hardware fingerprints and recurring card clusters.\n   Primary Typology: Customer Unrecognized Charge Dispute\n\n6. MATERIAL FINANCIAL LOSS & REGULATORY THRESHOLDS:\n   Total Material Amount at Risk: $30.02\n   Compliance Trigger: Exceeds FinCEN mandatory $5,000 threshold under Policy POL-FRD-2026 Section 2.\n\n7. LAW ENFORCEMENT DISPOSITION & REMEDIATION PROPOSALS:\n   - Account and card authorization freeze queued for Compliance Officer sign-off.\n   - Immediate preservation of digital audit trails and IP routing logs.\n   - Formal electronic submission to FinCEN BSA Direct e-Filing system.\n================================================================================"
+  }
+}

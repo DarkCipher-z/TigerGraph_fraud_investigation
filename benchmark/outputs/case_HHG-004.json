@@ -1,0 +1,96 @@
+{
+  "case_id": "HHG-004",
+  "transaction_id": "3583227",
+  "trigger_type": "customer_report",
+  "subject": {
+    "card_id": "C08106-K1",
+    "account_id": "C08106",
+    "amount": 128.33,
+    "device_id": "DEV-C08106-K1",
+    "ip_address": "198.51.100.42"
+  },
+  "investigation_record": {
+    "risk_score": 99.0,
+    "confidence": 0.68,
+    "uncertainty": 0.23,
+    "risk_tier": "CRITICAL",
+    "primary_typology": "Customer Unrecognized Charge Dispute",
+    "final_disposition": "confirmed_fraud",
+    "reasoning_summary": "The investigation is triggered by a direct customer dispute (SIG-REP-01, severity 86.0) regarding a $128.33 transaction on card C08106-K1. Historical precedents (CC-2121, CC-3778, CC-1736) show a consistent pattern of confirmed card-not-present fraud for this specific cardholder and card, involving unrecognized online purchases. Although the graph neighborhood shows no multi-hop linked cards or shared devices indicating a broader ring, the high severity of the dispute signal combined with the strong historical precedent of fraud on this specific asset necessitates immediate protective action.",
+    "investigation_rounds": 1,
+    "llm_provider": "groq_qwen_qwen3.8-27b",
+    "execution_time_ms": 28154
+  },
+  "fired_signals": [
+    {
+      "signal_id": "SIG-REP-01",
+      "typology_code": "CUST-DISPUTE",
+      "name": "Customer Unrecognized Charge Dispute",
+      "severity": 86.0,
+      "weight": 0.35,
+      "evidence": "Direct cardholder dispute received: 'Customer C08106 message: 'I never made this $128.33 purchase. Please check my card.' Refers to 3583227.'.",
+      "requires_evidence": false
+    }
+  ],
+  "retrieved_policies": [],
+  "historical_case_memory": [
+    {
+      "case_id": "CC-2121",
+      "typology": "card_not_present_fraud",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.471
+    },
+    {
+      "case_id": "CC-3778",
+      "typology": "card_not_present_fraud",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.471
+    },
+    {
+      "case_id": "CC-1736",
+      "typology": "card_not_present_fraud",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.461
+    }
+  ],
+  "actions_pre_evidence": [
+    {
+      "action_type": "block_account",
+      "target_entity": "C08106-K1",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Initial high-risk pattern detected in round 1.",
+      "stage": "pre_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "actions_post_evidence": [
+    {
+      "action_type": "freeze_card",
+      "target_entity": "C08106-K1",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Immediate freeze is required to prevent further unauthorized transactions given the confirmed dispute and high probability of fraud based on historical patterns.",
+      "stage": "post_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "action_type": "notify_customer",
+      "target_entity": "C08106",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Inform the customer that the card has been frozen and the transaction is under investigation, confirming their dispute has been received.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "sar_filing": {
+    "required": false
+  }
+}

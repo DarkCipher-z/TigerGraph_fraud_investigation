@@ -1173,14 +1173,71 @@ elif expert_nav == "⚡ Custom Transaction Simulator":
 
 elif expert_nav == "📊 20-Case Benchmark Scorecard":
     st.markdown("### 📊 20-Case Official Benchmark Scorecard")
-    st.caption("Validation metrics across all 20 official benchmark test cases.")
+    st.caption("Validation metrics and automated investigation results across all 20 official benchmark test cases.")
 
     out_dir = PROJECT_ROOT / "benchmark" / "outputs"
     cases = []
     if out_dir.exists():
         for p in sorted(out_dir.glob("case_*.json")):
-            with open(p, "r") as f:
-                cases.append(json.load(f))
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    cases.append(json.load(f))
+            except Exception:
+                pass
+
+    col_hdr1, col_hdr2 = st.columns([3, 1])
+    with col_hdr2:
+        if st.button("▶ Run Benchmark Live", type="primary", use_container_width=True):
+            import csv, re
+            case_pack_file = PROJECT_ROOT / "data" / "case_pack.csv"
+            raw_cases = []
+            if case_pack_file.exists():
+                with open(case_pack_file, "r", encoding="utf-8") as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        text = row.get("trigger_text", "")
+                        amt_match = re.search(r"\$([0-9,]+(?:\.[0-9]{2})?)", text)
+                        amount = float(amt_match.group(1).replace(",", "")) if amt_match else 100.0
+                        raw_cases.append({
+                            "case_id": row["case_id"],
+                            "card_id": row.get("card_id", "CARD-UNKNOWN"),
+                            "account_id": row.get("customer_id", "ACC-UNKNOWN"),
+                            "transaction_id": row.get("flagged_txn_id", "TX-UNKNOWN"),
+                            "amount": amount,
+                            "device_id": f"DEV-{row.get('card_id', 'DEV01')}",
+                            "ip_address": "198.51.100.42",
+                            "trigger_type": row.get("trigger_type", "risk_score"),
+                            "description": text
+                        })
+
+            if raw_cases:
+                out_dir.mkdir(parents=True, exist_ok=True)
+                progress_bar = st.progress(0, text="Starting benchmark run...")
+                new_cases = []
+                for idx, c in enumerate(raw_cases):
+                    progress_bar.progress((idx + 1) / len(raw_cases), text=f"Investigating {c['case_id']} ({idx+1}/{len(raw_cases)})...")
+                    t0 = time.time()
+                    st_res = orchestrator.investigate(c, case_id=c["case_id"])
+                    elapsed_ms = int((time.time() - t0) * 1000)
+                    out_dict = {
+                        "case_id": c["case_id"],
+                        "card_id": c.get("card_id"),
+                        "amount": c.get("amount"),
+                        "risk_score": round(st_res.risk_score, 1),
+                        "risk_tier": st_res.risk_tier,
+                        "confidence": round(st_res.confidence, 2),
+                        "requires_sar": st_res.requires_sar,
+                        "final_disposition": st_res.final_disposition,
+                        "primary_typology": st_res.primary_typology,
+                        "primary_llm_provider": st_res.primary_llm_provider,
+                        "total_execution_ms": elapsed_ms
+                    }
+                    with open(out_dir / f"case_{c['case_id']}.json", "w", encoding="utf-8") as f:
+                        json.dump(out_dict, f, indent=2)
+                    new_cases.append(out_dict)
+                progress_bar.empty()
+                st.success(f"✅ Successfully processed all {len(new_cases)} benchmark cases!")
+                st.rerun()
 
     if cases:
         c1, c2, c3, c4 = st.columns(4)
@@ -1203,11 +1260,12 @@ elif expert_nav == "📊 20-Case Benchmark Scorecard":
             "Confidence": f"{int(c.get('confidence', 0)*100)}%",
             "Draft SAR": "REQUIRED" if c.get("requires_sar") else "NOT REQUIRED",
             "Disposition": c.get("final_disposition"),
+            "Provider": c.get("primary_llm_provider", "deterministic"),
             "Latency": f"{c.get('total_execution_ms', 0)} ms"
         } for c in cases])
         st.dataframe(df_bench, use_container_width=True)
     else:
-        st.info("No benchmark output files found. Run `python benchmark/run_benchmark.py` to generate scorecard.")
+        st.info("No benchmark output files found. Click **▶ Run Benchmark Live** above to generate the scorecard.")
 
 elif expert_nav == "🏛️ Technical Architecture":
     st.markdown("### 🏛️ TigerGraph FIU Technical Architecture")

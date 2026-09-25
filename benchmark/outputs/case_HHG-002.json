@@ -1,0 +1,105 @@
+{
+  "case_id": "HHG-002",
+  "transaction_id": "3478782",
+  "trigger_type": "risk_score",
+  "subject": {
+    "card_id": "C11891-K1",
+    "account_id": "C11891",
+    "amount": 292.36,
+    "device_id": "DEV-C11891-K1",
+    "ip_address": "198.51.100.42"
+  },
+  "investigation_record": {
+    "risk_score": 76.3,
+    "confidence": 0.74,
+    "uncertainty": 0.324,
+    "risk_tier": "HIGH",
+    "primary_typology": "Real-Time ML Model Risk Anomaly",
+    "final_disposition": "escalate_to_analyst",
+    "reasoning_summary": "The transaction triggered a real-time ML risk score of 0.79 (SIG-ML-01), indicating elevated anomaly but not an immediate critical threshold. Graph analysis reveals no multi-hop linked cards or shared device rings (Shared Devices Count: 1, Multi-Hop Linked Cards: 0), which rules out Typology B (Distributed Device Ring) as the shared device count is below the mandatory threshold of 3 distinct accounts. Historical precedent CC-4160 shows this specific card (C11891-K1) has a prior history of confirmed card-not-present fraud, significantly increasing the prior probability of fraud despite the lack of current graph-based ring evidence. Given the high ML score, the specific card's fraud history, and the online nature of the transaction, the risk is too high for autonomous clearance but lacks the definitive graph evidence for immediate autonomous blocking without verification.",
+    "investigation_rounds": 1,
+    "llm_provider": "groq_qwen_qwen3.8-27b",
+    "execution_time_ms": 15215
+  },
+  "fired_signals": [
+    {
+      "signal_id": "SIG-ML-01",
+      "typology_code": "ML-SCORE",
+      "name": "Real-Time ML Model Risk Anomaly",
+      "severity": 79.0,
+      "weight": 0.3,
+      "evidence": "Real-time scoring model flagged transaction at 0.79 risk score.",
+      "requires_evidence": false
+    }
+  ],
+  "retrieved_policies": [
+    {
+      "title": "Typology B: Distributed Device Ring (RING-02)",
+      "similarity": 0.3533
+    },
+    {
+      "title": "Typology E: Geo-Velocity & Impossible Travel Anomaly (GEO-05)",
+      "similarity": 0.2536
+    }
+  ],
+  "historical_case_memory": [
+    {
+      "case_id": "CC-0634",
+      "typology": "none",
+      "outcome": "cleared_benign",
+      "similarity": 0.463
+    },
+    {
+      "case_id": "CC-4160",
+      "typology": "card_not_present_fraud",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.452
+    },
+    {
+      "case_id": "CC-0709",
+      "typology": "none",
+      "outcome": "cleared_benign",
+      "similarity": 0.44
+    }
+  ],
+  "actions_pre_evidence": [
+    {
+      "action_type": "block_account",
+      "target_entity": "C11891-K1",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Initial high-risk pattern detected in round 1.",
+      "stage": "pre_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "actions_post_evidence": [
+    {
+      "action_type": "step_up_mfa",
+      "target_entity": "C11891-K1",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Initiate step-up biometric or in-app push verification to confirm cardholder identity, consistent with handling high-risk online transactions and mitigating potential card-not-present fraud.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "action_type": "notify_customer",
+      "target_entity": "C11891",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Notify the cardholder of the flagged transaction to allow for immediate confirmation or denial, leveraging the historical pattern where customer confirmation clears benign alerts (e.g., CC-0634).",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "sar_filing": {
+    "required": false
+  }
+}

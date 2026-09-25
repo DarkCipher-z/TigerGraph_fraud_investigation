@@ -1,0 +1,105 @@
+{
+  "case_id": "HHG-010",
+  "transaction_id": "3506725",
+  "trigger_type": "risk_score",
+  "subject": {
+    "card_id": "C10434-K1",
+    "account_id": "C10434",
+    "amount": 1000.03,
+    "device_id": "DEV-C10434-K1",
+    "ip_address": "198.51.100.42"
+  },
+  "investigation_record": {
+    "risk_score": 77.89,
+    "confidence": 0.74,
+    "uncertainty": 0.315,
+    "risk_tier": "HIGH",
+    "primary_typology": "Real-Time ML Model Risk Anomaly",
+    "final_disposition": "escalate_to_analyst",
+    "reasoning_summary": "The transaction triggered a high-risk ML score of 0.90, but the graph neighborhood shows no multi-hop linked cards and only a single shared device count, failing the threshold for a Distributed Device Ring (RING-02) which requires >=3 distinct accounts. No geo-velocity anomalies (GEO-05) are present as the transaction is online and lacks conflicting physical location data. Historical precedents (CC-0873, CC-0657) indicate that high ML scores in the absence of graph-based fraud indicators often result in benign outcomes after customer verification.",
+    "investigation_rounds": 1,
+    "llm_provider": "groq_qwen_qwen3.8-27b",
+    "execution_time_ms": 1106
+  },
+  "fired_signals": [
+    {
+      "signal_id": "SIG-ML-01",
+      "typology_code": "ML-SCORE",
+      "name": "Real-Time ML Model Risk Anomaly",
+      "severity": 90.0,
+      "weight": 0.3,
+      "evidence": "Real-time scoring model flagged transaction at 0.90 risk score.",
+      "requires_evidence": false
+    }
+  ],
+  "retrieved_policies": [
+    {
+      "title": "Typology B: Distributed Device Ring (RING-02)",
+      "similarity": 0.3601
+    },
+    {
+      "title": "Typology E: Geo-Velocity & Impossible Travel Anomaly (GEO-05)",
+      "similarity": 0.2536
+    }
+  ],
+  "historical_case_memory": [
+    {
+      "case_id": "CC-0873",
+      "typology": "none",
+      "outcome": "cleared_benign",
+      "similarity": 0.678
+    },
+    {
+      "case_id": "CC-0634",
+      "typology": "none",
+      "outcome": "cleared_benign",
+      "similarity": 0.423
+    },
+    {
+      "case_id": "CC-0657",
+      "typology": "none",
+      "outcome": "cleared_benign",
+      "similarity": 0.413
+    }
+  ],
+  "actions_pre_evidence": [
+    {
+      "action_type": "block_account",
+      "target_entity": "C10434-K1",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Initial high-risk pattern detected in round 1.",
+      "stage": "pre_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "actions_post_evidence": [
+    {
+      "action_type": "step_up_mfa",
+      "target_entity": "C10434-K1",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Initiate step-up biometric or in-app push verification to confirm cardholder identity, consistent with handling high-risk ML scores where graph evidence is insufficient for immediate block but warrants verification.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "action_type": "notify_customer",
+      "target_entity": "C10434",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Notify the customer of the unusual transaction activity to prompt immediate confirmation or denial, aligning with historical precedents where customer confirmation cleared similar alerts.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "sar_filing": {
+    "required": false
+  }
+}

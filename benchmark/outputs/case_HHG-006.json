@@ -1,0 +1,77 @@
+{
+  "case_id": "HHG-006",
+  "transaction_id": "3476682",
+  "trigger_type": "customer_report",
+  "subject": {
+    "card_id": "C07297-K1",
+    "account_id": "C07297",
+    "amount": 482.12,
+    "device_id": "DEV-C07297-K1",
+    "ip_address": "198.51.100.42"
+  },
+  "investigation_record": {
+    "risk_score": 86.0,
+    "confidence": 0.68,
+    "uncertainty": 0.308,
+    "risk_tier": "CRITICAL",
+    "primary_typology": "Customer Unrecognized Charge Dispute",
+    "final_disposition": "confirmed_fraud",
+    "reasoning_summary": "The investigation is triggered by a direct customer dispute (SIG-REP-01, severity 86.0) regarding a $482.12 transaction on Card C07297-K1. The graph neighborhood shows no multi-hop linked cards or shared devices with other entities, indicating an isolated incident rather than a coordinated ring attack. Given the explicit denial of authorization by the cardholder and the absence of contradictory evidence in the graph, the transaction is treated as unauthorized. The amount is below the $5,000 SAR threshold, and no specific bank policies or historical precedents mandate immediate account blocking beyond card-level protection.",
+    "investigation_rounds": 1,
+    "llm_provider": "groq_qwen_qwen3.8-27b",
+    "execution_time_ms": 13501
+  },
+  "fired_signals": [
+    {
+      "signal_id": "SIG-REP-01",
+      "typology_code": "CUST-DISPUTE",
+      "name": "Customer Unrecognized Charge Dispute",
+      "severity": 86.0,
+      "weight": 0.35,
+      "evidence": "Direct cardholder dispute received: 'Customer C07297 message: 'I never made this $482.12 purchase. Please check my card.' Refers to 3476682.'.",
+      "requires_evidence": false
+    }
+  ],
+  "retrieved_policies": [],
+  "historical_case_memory": [],
+  "actions_pre_evidence": [
+    {
+      "action_type": "block_account",
+      "target_entity": "C07297-K1",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Initial high-risk pattern detected in round 1.",
+      "stage": "pre_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "actions_post_evidence": [
+    {
+      "action_type": "freeze_card",
+      "target_entity": "C07297-K1",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Immediate freezing of the compromised card is required to prevent further unauthorized transactions following the customer's explicit dispute.",
+      "stage": "post_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "action_type": "notify_customer",
+      "target_entity": "C07297",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Notify the customer that the card has been frozen and the dispute is being processed to confirm the action and provide next steps for card replacement.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "sar_filing": {
+    "required": false
+  }
+}

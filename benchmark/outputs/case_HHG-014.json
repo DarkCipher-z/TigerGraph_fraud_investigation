@@ -1,0 +1,109 @@
+{
+  "case_id": "HHG-014",
+  "transaction_id": "3478561",
+  "trigger_type": "analyst_request",
+  "subject": {
+    "card_id": "C13487-K1",
+    "account_id": "C13487",
+    "amount": 100.0,
+    "device_id": "DEV-C13487-K1",
+    "ip_address": "198.51.100.42"
+  },
+  "investigation_record": {
+    "risk_score": 99.0,
+    "confidence": 0.77,
+    "uncertainty": 0.167,
+    "risk_tier": "CRITICAL",
+    "primary_typology": "Syndicate Device Cluster Request",
+    "final_disposition": "escalate_to_analyst",
+    "reasoning_summary": "The investigation was triggered by a high-severity (92.0) heuristic signal (SIG-RING-02) indicating a potential syndicate device cluster, but the graph neighborhood analysis reveals zero multi-hop linked cards and only one shared device count, failing to meet the RING-02 policy threshold of >= 3 distinct cards. The transaction amount of $100.00 is well below the $1,000 threshold required for Account Takeover (ATO-03) mandatory actions, and there is no evidence of geo-velocity anomalies. Given the lack of confirmed graph linkage to other accounts and the low transaction value, the risk is insufficient to confirm fraud autonomously but warrants human review to verify the analyst's suspicion of a broader device profile issue.",
+    "investigation_rounds": 1,
+    "llm_provider": "groq_qwen_qwen3.8-27b",
+    "execution_time_ms": 21235
+  },
+  "fired_signals": [
+    {
+      "signal_id": "SIG-RING-02",
+      "typology_code": "RING-02",
+      "name": "Syndicate Device Cluster Request",
+      "severity": 92.0,
+      "weight": 0.4,
+      "evidence": "Analyst syndicate escalation: Analyst request: several cards this month show purchases from the same unusual device profile. Review transaction 3478561 on card C13487-K1 and look for related activity.",
+      "requires_evidence": false
+    }
+  ],
+  "retrieved_policies": [
+    {
+      "title": "Typology B: Distributed Device Ring (RING-02)",
+      "similarity": 0.6126
+    },
+    {
+      "title": "Typology E: Geo-Velocity & Impossible Travel Anomaly (GEO-05)",
+      "similarity": 0.366
+    },
+    {
+      "title": "Typology C: Account Takeover & Credential Compromise (ATO-03)",
+      "similarity": 0.2096
+    }
+  ],
+  "historical_case_memory": [
+    {
+      "case_id": "CC-0232",
+      "typology": "card_not_present_new_device",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.644
+    },
+    {
+      "case_id": "CC-3390",
+      "typology": "card_not_present_new_device",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.642
+    },
+    {
+      "case_id": "CC-3421",
+      "typology": "card_not_present_new_device",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.642
+    }
+  ],
+  "actions_pre_evidence": [
+    {
+      "action_type": "block_account",
+      "target_entity": "C13487-K1",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Initial high-risk pattern detected in round 1.",
+      "stage": "pre_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "actions_post_evidence": [
+    {
+      "action_type": "step_up_mfa",
+      "target_entity": "C13487-K1",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Implement step-up verification to confirm cardholder identity given the unusual device profile flagged by the analyst, without immediately blocking the account due to lack of confirmed multi-card linkage.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "action_type": "notify_customer",
+      "target_entity": "C13487",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Notify the customer of the unusual activity to ensure they are aware of the transaction and can confirm or deny authorization.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "sar_filing": {
+    "required": false
+  }
+}

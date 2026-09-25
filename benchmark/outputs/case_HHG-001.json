@@ -1,0 +1,94 @@
+{
+  "case_id": "HHG-001",
+  "transaction_id": "3514030",
+  "trigger_type": "risk_score",
+  "subject": {
+    "card_id": "C12382-K1",
+    "account_id": "C12382",
+    "amount": 77.07,
+    "device_id": "DEV-C12382-K1",
+    "ip_address": "198.51.100.42"
+  },
+  "investigation_record": {
+    "risk_score": 49.61,
+    "confidence": 0.82,
+    "uncertainty": 0.424,
+    "risk_tier": "MEDIUM",
+    "primary_typology": "Real-Time ML Model Risk Anomaly",
+    "final_disposition": "cleared_benign",
+    "reasoning_summary": "The transaction triggered a moderate ML risk score of 0.61, which is below the high-confidence thresholds seen in historical fraud cases. The graph neighborhood shows no multi-hop linked cards and only one shared device, failing to meet the criteria for Typology B (Distributed Device Ring) which requires at least 3 distinct accounts. Historical precedents indicate that similar or higher risk scores were cleared as benign when cardholders confirmed travel, and no geo-velocity anomalies (Typology E) are present in the current data.",
+    "investigation_rounds": 2,
+    "llm_provider": "groq_qwen_qwen3.8-27b",
+    "execution_time_ms": 17172
+  },
+  "fired_signals": [
+    {
+      "signal_id": "SIG-ML-01",
+      "typology_code": "ML-SCORE",
+      "name": "Real-Time ML Model Risk Anomaly",
+      "severity": 61.0,
+      "weight": 0.3,
+      "evidence": "Real-time scoring model flagged transaction at 0.61 risk score.",
+      "requires_evidence": true
+    }
+  ],
+  "retrieved_policies": [
+    {
+      "title": "Typology B: Distributed Device Ring (RING-02)",
+      "similarity": 0.3533
+    },
+    {
+      "title": "Typology E: Geo-Velocity & Impossible Travel Anomaly (GEO-05)",
+      "similarity": 0.2536
+    }
+  ],
+  "historical_case_memory": [
+    {
+      "case_id": "CC-0648",
+      "typology": "none",
+      "outcome": "cleared_benign",
+      "similarity": 0.486
+    },
+    {
+      "case_id": "CC-3862",
+      "typology": "none",
+      "outcome": "cleared_benign",
+      "similarity": 0.472
+    },
+    {
+      "case_id": "CC-0634",
+      "typology": "none",
+      "outcome": "cleared_benign",
+      "similarity": 0.466
+    }
+  ],
+  "actions_pre_evidence": [
+    {
+      "action_type": "step_up_mfa",
+      "target_entity": "C12382-K1",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Moderate risk requires out-of-band verification challenge.",
+      "stage": "pre_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "actions_post_evidence": [
+    {
+      "action_type": "allow_transaction",
+      "target_entity": "C12382-K1",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Risk score is moderate (0.61) and does not meet mandatory policy triggers for blocking or escalation. Graph analysis shows no linked fraud rings, and historical patterns suggest benign activity for similar scores.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "sar_filing": {
+    "required": false
+  }
+}

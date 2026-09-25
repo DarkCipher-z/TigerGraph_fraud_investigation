@@ -1,0 +1,96 @@
+{
+  "case_id": "HHG-018",
+  "transaction_id": "3491361",
+  "trigger_type": "customer_report",
+  "subject": {
+    "card_id": "C02354-K2",
+    "account_id": "C02354",
+    "amount": 39.08,
+    "device_id": "DEV-C02354-K2",
+    "ip_address": "198.51.100.42"
+  },
+  "investigation_record": {
+    "risk_score": 99.0,
+    "confidence": 0.68,
+    "uncertainty": 0.23,
+    "risk_tier": "CRITICAL",
+    "primary_typology": "Customer Unrecognized Charge Dispute",
+    "final_disposition": "confirmed_fraud",
+    "reasoning_summary": "The investigation is triggered by a direct customer dispute (SIG-REP-01) regarding a $39.08 transaction on card C02354-K2. The graph neighborhood is isolated with no multi-hop linked cards or shared devices, indicating a single-card incident rather than a coordinated ring. Historical precedents for this specific cardholder (CC-5558, CC-3537, CC-4436) show a consistent pattern of confirmed fraud involving unrecognized activity, strongly suggesting this is a repeat victim of card compromise. The transaction amount is well below the $5,000 SAR threshold, but the pattern of unauthorized use warrants immediate protective action.",
+    "investigation_rounds": 1,
+    "llm_provider": "groq_qwen_qwen3.8-27b",
+    "execution_time_ms": 19209
+  },
+  "fired_signals": [
+    {
+      "signal_id": "SIG-REP-01",
+      "typology_code": "CUST-DISPUTE",
+      "name": "Customer Unrecognized Charge Dispute",
+      "severity": 86.0,
+      "weight": 0.35,
+      "evidence": "Direct cardholder dispute received: 'Customer C02354 message: 'I never made this $39.08 purchase. Please check my card.' Refers to 3491361.'.",
+      "requires_evidence": false
+    }
+  ],
+  "retrieved_policies": [],
+  "historical_case_memory": [
+    {
+      "case_id": "CC-5558",
+      "typology": "card_not_present_fraud",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.464
+    },
+    {
+      "case_id": "CC-3537",
+      "typology": "out_of_region_use",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.461
+    },
+    {
+      "case_id": "CC-4436",
+      "typology": "out_of_region_use",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.461
+    }
+  ],
+  "actions_pre_evidence": [
+    {
+      "action_type": "block_account",
+      "target_entity": "C02354-K2",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Initial high-risk pattern detected in round 1.",
+      "stage": "pre_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "actions_post_evidence": [
+    {
+      "action_type": "freeze_card",
+      "target_entity": "C02354-K2",
+      "is_critical": true,
+      "requires_human_approval": true,
+      "justification": "Immediate freeze of the compromised card is required to prevent further unauthorized transactions, consistent with historical case outcomes for this cardholder.",
+      "stage": "post_evidence",
+      "status": "queued_for_approval",
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "action_type": "notify_customer",
+      "target_entity": "C02354",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Notify the customer that the disputed transaction has been flagged as fraudulent and the card has been frozen, and advise on next steps for reissuance.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "sar_filing": {
+    "required": false
+  }
+}

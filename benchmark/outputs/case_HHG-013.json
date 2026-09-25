@@ -1,0 +1,105 @@
+{
+  "case_id": "HHG-013",
+  "transaction_id": "3526826",
+  "trigger_type": "risk_score",
+  "subject": {
+    "card_id": "C07671-K2",
+    "account_id": "C07671",
+    "amount": 35.66,
+    "device_id": "DEV-C07671-K2",
+    "ip_address": "198.51.100.42"
+  },
+  "investigation_record": {
+    "risk_score": 70.83,
+    "confidence": 0.74,
+    "uncertainty": 0.357,
+    "risk_tier": "MEDIUM",
+    "primary_typology": "Real-Time ML Model Risk Anomaly",
+    "final_disposition": "escalate_to_analyst",
+    "reasoning_summary": "The transaction triggered a moderate ML risk score of 0.76, but the graph neighborhood shows no multi-hop linked cards or shared devices with other accounts, ruling out distributed device rings (RING-02). The transaction amount of $35.66 is well below the $5,000 SAR threshold, and there is no evidence of geo-velocity anomalies (GEO-05) as the transaction is online. Historical precedent CC-3216 indicates this specific card/account has a history of fraud from new devices, but the current signal strength and lack of corroborating graph evidence suggest a need for verification rather than immediate blocking.",
+    "investigation_rounds": 1,
+    "llm_provider": "groq_qwen_qwen3.8-27b",
+    "execution_time_ms": 21224
+  },
+  "fired_signals": [
+    {
+      "signal_id": "SIG-ML-01",
+      "typology_code": "ML-SCORE",
+      "name": "Real-Time ML Model Risk Anomaly",
+      "severity": 76.0,
+      "weight": 0.3,
+      "evidence": "Real-time scoring model flagged transaction at 0.76 risk score.",
+      "requires_evidence": false
+    }
+  ],
+  "retrieved_policies": [
+    {
+      "title": "Typology B: Distributed Device Ring (RING-02)",
+      "similarity": 0.3533
+    },
+    {
+      "title": "Typology E: Geo-Velocity & Impossible Travel Anomaly (GEO-05)",
+      "similarity": 0.2536
+    }
+  ],
+  "historical_case_memory": [
+    {
+      "case_id": "CC-3761",
+      "typology": "none",
+      "outcome": "cleared_benign",
+      "similarity": 0.722
+    },
+    {
+      "case_id": "CC-0634",
+      "typology": "none",
+      "outcome": "cleared_benign",
+      "similarity": 0.423
+    },
+    {
+      "case_id": "CC-3216",
+      "typology": "card_not_present_new_device",
+      "outcome": "confirmed_fraud",
+      "similarity": 0.399
+    }
+  ],
+  "actions_pre_evidence": [
+    {
+      "action_type": "step_up_mfa",
+      "target_entity": "C07671-K2",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Moderate risk requires out-of-band verification challenge.",
+      "stage": "pre_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "actions_post_evidence": [
+    {
+      "action_type": "step_up_mfa",
+      "target_entity": "C07671-K2",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Trigger step-up biometric or in-app push verification to confirm cardholder identity, consistent with policy for moderate risk anomalies and historical fraud patterns on this card.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "action_type": "notify_customer",
+      "target_entity": "C07671",
+      "is_critical": false,
+      "requires_human_approval": false,
+      "justification": "Notify the customer of the flagged transaction to allow for immediate confirmation or dispute, leveraging the historical precedent of unrecognized activity on this card.",
+      "stage": "post_evidence",
+      "status": "executed",
+      "approved_by": null,
+      "approved_at": null
+    }
+  ],
+  "sar_filing": {
+    "required": false
+  }
+}
