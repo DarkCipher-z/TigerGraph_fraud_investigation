@@ -1,6 +1,6 @@
 """
 Resilient Multi-Tier LLM Circuit Breaker.
-Executes primary LLM (Groq Llama 3.3 70B), falling back to secondary (Gemini Flash),
+Executes primary LLM (Gemini Flash), falling back to secondary (Groq),
 and finally to a deterministic rule engine if all APIs are unreachable or offline.
 """
 
@@ -57,7 +57,6 @@ class ResilientLLMChain:
                     response = self.gemini_client.generate_content(
                         full_prompt,
                         generation_config={
-                            "temperature": 0.1,
                             "max_output_tokens": 2048
                         }
                     )
@@ -87,7 +86,7 @@ class ResilientLLMChain:
                     text = completion.choices[0].message.content
                     latency = max(1, int((time.time() - start_time) * 1000))
                     logger.info("Groq returned successfully in %d ms", latency)
-                    return text, "groq_llama_3.3_70b", latency
+                    return text, f"groq_{config.GROQ_MODEL.replace('/', '_')}", latency
                 except Exception as e:
                     logger.warning("Groq call failed (%s). Tripping breaker to next tier.", e)
 

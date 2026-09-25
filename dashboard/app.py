@@ -401,17 +401,19 @@ with st.sidebar:
 
     st.markdown("<hr style='margin:12px 0; border-color:#1E293B;'>", unsafe_allow_html=True)
 
-    # Reasoning Engine & Evidence Lineage Telemetry (Priority 14)
+    # Reasoning Engine & Evidence Lineage Telemetry
     llm_p = current_state.primary_llm_provider or "deterministic_rule_engine"
     prov_label = (
-        "Groq (Llama-3.3-70b)" if "groq" in llm_p.lower() else
-        "Gemini 2.5 Flash" if "gemini" in llm_p.lower() else
+        f"Groq ({config.GROQ_MODEL})" if "groq" in llm_p.lower() else
+        f"Gemini ({config.GEMINI_MODEL})" if "gemini" in llm_p.lower() else
         "DETERMINISTIC FALLBACK ACTIVE"
     )
+    backend_label = "TigerGraph Cloud (Live)" if not orchestrator.tg_client.use_mock else "MockGraphBackend (Demo Mode)"
     st.markdown(f"""
     <div style="background:#0F172A; border:1px solid #1E293B; border-radius:6px; padding:10px; font-family:'JetBrains Mono'; font-size:0.72rem; color:#94A3B8;">
-        <div style="color:#38BDF8; font-weight:700; margin-bottom:4px;">REASONING ENGINE</div>
-        <div>Provider: <b style="color:#F8FAFC;">{prov_label}</b></div>
+        <div style="color:#38BDF8; font-weight:700; margin-bottom:4px;">INVESTIGATION ENGINE</div>
+        <div>Graph Backend: <b style="color:#F8FAFC;">{backend_label}</b></div>
+        <div>AI Strategist: <b style="color:#F8FAFC;">{prov_label}</b></div>
         <div>Scoring: <b>Deterministic RiskEngine</b></div>
         <div>Grounding: <b>Bank SOP (POL-FRD-2026)</b></div>
         <div>Precedents: <b>5,570 Closed Cases</b></div>
@@ -813,7 +815,7 @@ if expert_nav == "— Select Tool —":
         with c4:
             st.metric("Historical Evidence", f"{integ.get('historical_evidence_count', len(current_state.similar_cases))}")
         with c5:
-            st.metric("Grounding Accuracy", f"{integ.get('grounding_accuracy_pct', 100.0)}%")
+            st.metric("Evidence Traceability", f"{integ.get('grounding_accuracy_pct', 100.0)}%")
 
         # Supporting vs Weakening Breakdown
         st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
@@ -849,9 +851,11 @@ if expert_nav == "— Select Tool —":
 
         # Downloadable Investigation Receipt (JSON)
         st.markdown("---")
+        backend_mode = "TigerGraph Cloud (Live)" if not orchestrator.tg_client.use_mock else "MockGraphBackend (Demonstration Mode)"
         receipt_data = {
             "case_id": current_state.case_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
+            "graph_backend": backend_mode,
             "transaction": selected_trigger,
             "initial_risk": current_state.initial_assessment.get("risk_score") if current_state.initial_assessment else current_state.risk_score,
             "final_risk": current_state.risk_score,

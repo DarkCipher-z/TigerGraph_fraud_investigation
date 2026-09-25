@@ -6,7 +6,7 @@
 
 ## 🌟 Overview
 
-The **TigerGraph Agentic Fraud Investigation System** is a production-grade Financial Intelligence Unit (FIU) command center. It turns one suspicious transaction trigger into an explainable, graph-grounded investigation:
+The **TigerGraph Agentic Fraud Investigation System** is a full-stack Financial Intelligence Unit (FIU) command center built for the TigerGraph hackathon. It turns one suspicious transaction trigger into an explainable, graph-grounded investigation:
 
 > *"Give us one suspicious transaction. We uncover the connected fraud network, gather additional evidence, explain why the transaction is suspicious, update the risk as evidence changes, and route consequential actions through human approval."*
 
@@ -16,7 +16,7 @@ It integrates:
 - **Deterministic Risk Scoring & Grounded Signal Decomposition** (authoritative scoring engine)
 - **GraphRAG Compliance Policy Grounding** (`bank_fraud_policy.md` chunked via semantic vector retrieval)
 - **Hybrid Case Memory** (combining topological overlap with cosine similarity over 5,570 closed cases)
-- **3-Tier Resilient Reasoning Circuit Breaker** (Groq Llama 3.3 70B $\rightarrow$ Google Gemini Flash $\rightarrow$ Deterministic Rule Engine)
+- **3-Tier Resilient Reasoning Circuit Breaker** (Gemini 3.8 Flash $\rightarrow$ Groq $\rightarrow$ Deterministic Rule Engine)
 - **Human-in-the-Loop (HITL) Governance** with audit logging for consequential actions (account freezes, card blocks)
 - **Draft FinCEN SAR Narrative Generation** (7-point regulatory draft for compliance officer review)
 - **Interactive Command Center Dashboard** (Streamlit with real-time Plotly graph network, hop controls, ring isolation, and money flow trace)
@@ -131,9 +131,9 @@ Or view the live cloud deployment: **[Streamlit Community Cloud Deployment](http
    - Adjusts risk and confidence dynamically based on historical precedent outcomes.
 
 5. **Multi-Tier LLM Circuit Breaker**:
-   - Primary: **Groq (Llama 3.3 70B Versatile / Open Models)**
-   - Secondary: **Google AI Studio (Gemini Flash Series)**
-   - Tertiary: **Deterministic Rule Engine** (guarantees offline execution and graceful degradation when external API keys are invalid, rate-limited, or offline).
+   - Primary: **Google AI Studio (Gemini 3.8 Flash)**
+   - Secondary: **Groq Cloud (Open Models)**
+   - Tertiary: **Deterministic Rule Engine** (ensures offline execution and graceful degradation when external API keys are invalid, rate-limited, or offline).
    - *LLM explains grounded evidence and proposes actions; it does not determine the numeric score.*
 
 6. **Action Audit & Human-in-the-Loop Approval**:
@@ -141,7 +141,7 @@ Or view the live cloud deployment: **[Streamlit Community Cloud Deployment](http
    - Immutable audit logging with dual-stage routing (`pre_evidence` vs `post_evidence`).
 
 7. **Draft FinCEN SAR Generator**:
-   - Generates compliant 7-point regulatory narratives for transactions violating AML mandates.
+   - Generates structured 7-point regulatory draft narratives for transactions violating AML mandates.
    - Labeled clearly: *Draft narrative requiring human compliance review before filing.*
 
 ---

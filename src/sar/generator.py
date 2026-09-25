@@ -35,6 +35,7 @@ class SARGenerator:
         # If LLM didn't produce full 7-point narrative, construct canonical template
         if not llm_narrative or len(llm_narrative) < 100:
             narrative = f"""================================================================================
+*** DRAFT — FOR COMPLIANCE REVIEW ONLY — NOT A FILED REPORT ***
 FINCEN SUSPICIOUS ACTIVITY REPORT (SAR) NARRATIVE
 Reference ID: {sar_ref} | Date: {now_utc.strftime('%Y-%m-%d')}
 ================================================================================
@@ -81,6 +82,6 @@ Reference ID: {sar_ref} | Date: {now_utc.strftime('%Y-%m-%d')}
             "suspicious_amount": amount,
             "primary_typology": investigation_state.primary_typology,
             "narrative": narrative,
-            "status": "pending_compliance_approval",
+            "status": "DRAFT_pending_compliance_review",
             "created_at": now_utc.isoformat()
         }

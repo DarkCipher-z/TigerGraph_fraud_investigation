@@ -32,7 +32,7 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/text-embedding-004")
 
 # Groq Settings
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
 
 # Agent & Risk Scoring Thresholds
 RISK_THRESHOLD_HIGH = float(os.getenv("RISK_THRESHOLD_HIGH", "75.0"))

@@ -14,7 +14,7 @@ def test_circuit_breaker_deterministic_fallback():
     text, provider, latency = chain.generate(prompt)
     assert text is not None
     assert latency >= 0
-    assert provider in ["gemini_3.8_flash", "gemini_flash", "groq_llama_3.3_70b", "deterministic_rule_engine"]
+    assert provider.startswith("gemini_") or provider.startswith("groq_") or provider == "deterministic_rule_engine"
     
     parsed = StructuredOutputParser.parse_investigation_response(text)
     assert parsed is not None
